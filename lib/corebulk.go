@@ -38,6 +38,15 @@ type ErrorBuffer struct {
 	Buf *bytes.Buffer
 }
 
+type BulkIndexerOptions struct {
+	MaxConnections		int
+	RetrySeconds		int
+	BulkChannelSize		int
+	BulkMaxDocs			int
+	BulkMaxBufferSize	int
+	BufferDelayMax		time.Duration
+}
+
 // A bulk indexer creates goroutines, and channels for connecting and sending data
 // to elasticsearch in bulk, using buffers.
 type BulkIndexer struct {
@@ -125,6 +134,27 @@ func (c *Conn) NewBulkIndexerErrors(maxConns, retrySeconds int) *BulkIndexer {
 	b.RetryForSeconds = retrySeconds
 	b.ErrorChannel = make(chan *ErrorBuffer, 20)
 	return b
+}
+
+func (c *Conn) NewBulkIndexerWithOptions(options BulkIndexerOptions) *BulkIndexer{
+	b := BulkIndexer{
+		conn: c,
+		sendBuff: make(chan * bytes.Buffer, options.MaxConnections),
+		needsTimeBasedFlush: true,
+		buf: new(bytes.Buffer),
+		maxConns: options.MaxConnections,
+		BulkMaxBuffer: options.BulkMaxBufferSize,
+		BulkMaxDocs: options.BulkMaxDocs,
+		BufferDelayMax: options.BufferDelayMax,
+		bulkChannel: make(chan []byte, options.BulkChannelSize),
+		sendWg: new(sync.WaitGroup),
+		docDoneChan: make(chan bool),
+		timerDoneChan: make(chan bool),
+		httpDoneChan: make(chan bool),
+		RetryForSeconds: options.RetrySeconds,
+		ErrorChannel: make(chan *ErrorBuffer, 20),
+	}
+	return &b
 }
 
 // Starts this bulk Indexer running, this Run opens a go routine so is
