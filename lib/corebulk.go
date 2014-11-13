@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"github.com/op/go-logging"
 )
 
 const (
@@ -101,6 +102,8 @@ type BulkIndexer struct {
 	mu sync.Mutex
 	// Wait Group for the http sends
 	sendWg *sync.WaitGroup
+
+	logger *logging.Logger
 }
 
 func (b *BulkIndexer) NumErrors() uint64 {
@@ -153,6 +156,7 @@ func (c *Conn) NewBulkIndexerWithOptions(options BulkIndexerOptions) *BulkIndexe
 		httpDoneChan: make(chan bool),
 		RetryForSeconds: options.RetrySeconds,
 		ErrorChannel: make(chan *ErrorBuffer, 20),
+		logger: logging.MustGetLogger("BulkIndexer"),
 	}
 	return &b
 }
@@ -279,6 +283,7 @@ func (b *BulkIndexer) startTimer() {
 				// where time isn't needed
 				if b.buf.Len() > 0 && b.needsTimeBasedFlush {
 					b.needsTimeBasedFlush = true
+					b.logger.Info("Timer is sending %d objects to sendBuf", b.docCt)
 					b.send(b.buf)
 				} else if b.buf.Len() > 0 {
 					b.needsTimeBasedFlush = true
@@ -306,6 +311,7 @@ func (b *BulkIndexer) startDocChannel() {
 				if b.buf.Len() >= b.BulkMaxBuffer || b.docCt >= b.BulkMaxDocs {
 					b.needsTimeBasedFlush = false
 					//log.Printf("Send due to size:  docs=%d  bufsize=%d", b.docCt, b.buf.Len())
+					b.logger.Info("Sending data to sendBuf %d %d", b.buf.Len(), b.docCt)
 					b.send(b.buf)
 				}
 				b.mu.Unlock()
