@@ -139,7 +139,7 @@ func (c *Conn) NewBulkIndexerErrors(maxConns, retrySeconds int) *BulkIndexer {
 func (c *Conn) NewBulkIndexerWithOptions(options BulkIndexerOptions) *BulkIndexer{
 	b := BulkIndexer{
 		conn: c,
-		sendBuff: make(chan * bytes.Buffer, options.MaxConnections),
+		sendBuf: make(chan * bytes.Buffer, options.MaxConnections),
 		needsTimeBasedFlush: true,
 		buf: new(bytes.Buffer),
 		maxConns: options.MaxConnections,
