@@ -346,7 +346,6 @@ func (b *BulkIndexer) shutdown() {
 func (b *BulkIndexer) Index(index string, _type string, id, ttl string, date *time.Time, data interface{}, refresh bool) error {
 	//{ "index" : { "_index" : "test", "_type" : "type1", "_id" : "1" } }
 	by, err := WriteBulkBytes("index", index, _type, id, ttl, date, data, refresh)
-	b.logger.Info("Number of docs: %s", b.docCt)
 	if err != nil {
 		return err
 	}
