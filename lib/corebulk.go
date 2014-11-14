@@ -325,7 +325,9 @@ func (b *BulkIndexer) startDocChannel() {
 
 func (b *BulkIndexer) send(buf *bytes.Buffer) {
 	//b2 := *b.buf
+	start := time.Now()
 	b.sendBuf <- buf
+	b.logger.Info("send buf channel waiting time: %s", time.Since(start))
 	b.buf = new(bytes.Buffer)
 	//	b.buf.Reset()
 	b.docCt = 0
