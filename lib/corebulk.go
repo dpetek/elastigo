@@ -331,7 +331,7 @@ func (b *BulkIndexer) send(buf *bytes.Buffer) {
 	b.sendBuf <- buf
 	b.buf = new(bytes.Buffer)
 	//	b.buf.Reset()
-	b.totalSent += d.docCt
+	b.totalSent += b.docCt
 	b.docCt = 0
 }
 
