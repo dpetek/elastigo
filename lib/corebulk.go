@@ -20,7 +20,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"github.com/op/go-logging"
 )
 
 const (
