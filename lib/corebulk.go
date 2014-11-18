@@ -103,7 +103,6 @@ type BulkIndexer struct {
 	// Wait Group for the http sends
 	sendWg *sync.WaitGroup
 
-	logger *logging.Logger
 	totalSent int
 }
 
@@ -158,7 +157,6 @@ func (c *Conn) NewBulkIndexerWithOptions(options BulkIndexerOptions) *BulkIndexe
 		httpDoneChan: make(chan bool),
 		RetryForSeconds: options.RetrySeconds,
 		ErrorChannel: make(chan *ErrorBuffer, 20),
-		logger: logging.MustGetLogger("BulkIndexer"),
 		totalSent: 0,
 	}
 	return &b
@@ -286,7 +284,6 @@ func (b *BulkIndexer) startTimer() {
 				// where time isn't needed
 				if b.buf.Len() > 0 && b.needsTimeBasedFlush {
 					b.needsTimeBasedFlush = true
-					b.logger.Info("Timer is sending %d/%d objects to sendBuf", b.docCt, b.totalSent)
 					b.send(b.buf)
 				} else if b.buf.Len() > 0 {
 					b.needsTimeBasedFlush = true
@@ -314,7 +311,6 @@ func (b *BulkIndexer) startDocChannel() {
 				if b.buf.Len() >= b.BulkMaxBuffer || b.docCt >= b.BulkMaxDocs {
 					b.needsTimeBasedFlush = false
 					//log.Printf("Send due to size:  docs=%d  bufsize=%d", b.docCt, b.buf.Len())
-					b.logger.Info("Sending data to sendBuf %d %d/%d", b.buf.Len(), b.docCt, b.totalSent)
 					b.send(b.buf)
 				}
 				b.mu.Unlock()
