@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"github.com/op/go-logging"
 )
 
 const (
@@ -103,6 +104,8 @@ type BulkIndexer struct {
 	sendWg *sync.WaitGroup
 
 	totalSent int
+
+	logger logging.Logger
 }
 
 func (b *BulkIndexer) NumErrors() uint64 {
@@ -157,6 +160,7 @@ func (c *Conn) NewBulkIndexerWithOptions(options BulkIndexerOptions) *BulkIndexe
 		RetryForSeconds: options.RetrySeconds,
 		ErrorChannel: make(chan *ErrorBuffer, 20),
 		totalSent: 0,
+		logger:            logging.MustGetLogger("[CoreBulk]"),
 	}
 	return &b
 }
@@ -387,6 +391,9 @@ func (b *BulkIndexer) Send(buf *bytes.Buffer) error {
 			return fmt.Errorf("Bulk Insertion Error. Failed item count [%d]", len(response.Items))
 		}
 	}
+
+	b.logger.Info("Response: %s", string(body))
+
 	return nil
 }
 
