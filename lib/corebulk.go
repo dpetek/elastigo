@@ -105,7 +105,7 @@ type BulkIndexer struct {
 
 	totalSent int
 
-	logger logging.Logger
+	logger *logging.Logger
 }
 
 func (b *BulkIndexer) NumErrors() uint64 {
