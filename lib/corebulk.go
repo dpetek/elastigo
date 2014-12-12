@@ -349,7 +349,7 @@ func (b *BulkIndexer) Send(buf *bytes.Buffer) error {
 	if jsonErr == nil {
 		if response.Errors {
 			b.numErrors += uint64(len(response.Items))
-			return fmt.Errorf("Bulk Insertion Error. Failed item count [%d]", len(response.Items))
+			return fmt.Errorf("Bulk Insertion Error. Failed item count [%d] %s", len(response.Items), body)
 		}
 	}
 	return nil
