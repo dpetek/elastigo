@@ -24,9 +24,9 @@ import (
 
 const (
 	// Max buffer size in bytes before flushing to elasticsearch
-	BulkMaxBuffer = 16384
+	BulkMaxBuffer = 16384000
 	// Max number of Docs to hold in buffer before forcing flush
-	BulkMaxDocs = 100
+	BulkMaxDocs = 500
 	// Max delay before forcing a flush to Elasticearch
 	BulkDelaySeconds = 5
 	// maximum wait shutdown seconds
